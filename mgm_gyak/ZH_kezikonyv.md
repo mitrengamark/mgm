@@ -1,18 +1,34 @@
 # ZH készültető – ROS2 (rclpy) gyors kézikönyv
 
-Cél: a ZH-n tipikus ROS2 feladatokat gyorsan megoldani a meglévő példák mintájára. A parancsok Linux + ROS2 környezetre vannak, de Mac-en is olvasható gyakorláshoz.
+Cél: a ZH-n tipikus ROS2 feladatokat gyorsan megoldani a meglévő példák mintájára. Célkörnyezet: Ubuntu 22.04 (ROS 2 Humble). Mac-en nincs ROS2 – ott csak olvasd/gyakorold a mintákat.
 
-## Build és futtatás (colcon, zsh)
+## Ubuntu 22.04 (Humble) gyors beállítás
+
+```zsh
+sudo apt update
+sudo apt install -y \
+  python3-colcon-common-extensions \
+  ros-humble-rviz2 \
+  ros-humble-tf2-ros \
+  ros-humble-tf2-geometry-msgs \
+  ros-humble-sensor-msgs-py \
+  python3-tf-transformations
+
+# ROS 2 környezet betöltése (Humble)
+source /opt/ros/humble/setup.bash
+```
+
+## Build és futtatás (colcon)
 
 ```zsh
 # Munkahelyi könyvtár (workspace) gyökerében
 colcon build --symlink-install
 
-# Új shellben forrásold az overlay-t
-source install/setup.zsh   # vagy setup.bash, környezettől függ
+# Új shellben forrásold az overlay-t (Ubuntu-n jellemzően bash)
+source install/setup.bash  # zsh esetén: source install/setup.zsh
 
 # Egy csomag futtatása
-ros2 run gyak2 publisher   # példa
+ros2 run gyak2 talker      # példában a publisher entry pointja: talker
 
 # Launch (XML)
 ros2 launch gyak10 gyak10.launch.xml
@@ -21,6 +37,12 @@ ros2 launch gyak10 gyak10.launch.xml
 ros2 topic list
 ros2 node list
 ros2 topic echo /odom
+```
+
+Megjegyzés: Új terminálnál előbb a ROS 2 base környezetet is töltsd be:
+
+```zsh
+source /opt/ros/humble/setup.bash
 ```
 
 Tipp: Ha bag-et játszol vissza: `ros2 bag play <bag_mappa>` és `use_sim_time: true` paraméterekkel dolgozz.
@@ -231,7 +253,7 @@ def generate_launch_description():
 
 1) Készítsd el a node-ot a fenti mintákból (publisher/subscriber/scan/path/tf).
 2) Add hozzá a `setup.py` entry pointját (ha új executable kell) és `package.xml`-ben a függőségeket (std_msgs/nav_msgs/geometry_msgs/visualization_msgs/tf2_ros stb.).
-3) `colcon build --symlink-install` → `source install/setup.zsh`.
+3) `colcon build --symlink-install` → `source install/setup.bash` (zsh esetén `setup.zsh`).
 4) Futtasd `ros2 run ...` vagy `ros2 launch ...` paranccsal.
 5) Ellenőrzés: `ros2 topic list/echo`, RViz marker/Path (ha van környezet).
 

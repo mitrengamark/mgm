@@ -1,0 +1,4 @@
+Készítsen egy „proba2” nevű ROS package-t.
+Készítsen egy node-t, mely feliratkozik egy „/agent1/odom/ground_truth” nevű „nav_msgs/Odometry” típusú topicra, melyből vizsgálja az 'x' és 'y' irányú pozíció koordinátát megcserélve egy „visualization_msgs/Marker” üzenetet küldjön ki. Az üzenet egy 10x10x20 cm-es téglatestet jelenítsen, melynek hosszú oldala ugyan abba az irányba mutat, mint a jármű.
+Egy  0.2 Hz-es timer segítségével küldje ki, az utolsó „Odometry” üzenet időbélyegét egy „std_msgs/Header” típusú üzenetben. Készítsen egy launch file-t, mely elindítja a node-t és egy rviz-t, melyben meg lehet jeleníteni a pozíciót és a kiküldött téglatestet.
+Tesztelésre a mellékelt bag file-t lehet használni.

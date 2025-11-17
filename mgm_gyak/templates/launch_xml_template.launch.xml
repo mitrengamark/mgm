@@ -1,0 +1,7 @@
+<launch>
+  <!-- Egyszerű launch XML sablon -->
+  <node pkg="your_package" exec="your_executable" name="your_node" output="screen">
+    <param name="use_sim_time" value="true"/>
+    <param name="rate_hz" value="2.0"/>
+  </node>
+</launch>

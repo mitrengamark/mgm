@@ -1,3 +1,14 @@
+"""PURE_PURSUIT_CONTROL node - Pure Pursuit path követés.
+
+Magyarázat:
+ - Pure Pursuit: path követési algoritmus lookahead pont segítségével.
+ - Legközelebbi pont: a path-on a legközelebbi póz a robot aktuális pozíciójához.
+ - Lookahead pont: a path-on olyan pont, amely lookahead_distance távolságra van.
+ - Kormányszög: steering_angle = atan(2 * wheelbase * sin(α) / L), ahol L a lookahead táv.
+ - TF: robot pozíció lekérdezése (map → base_link).
+ - Marker vizualizáció: legközelebbi és lookahead pontok megjelenítése.
+"""
+
 import rclpy
 from rclpy.node import Node
 import copy
@@ -15,6 +26,7 @@ class PURE_PURSUIT_CONTROL(Node):
     def __init__(self):
         super().__init__('pure_pursuit')
 
+        # Paraméterek: tengelytáv, lookahead távolság, sebesség korlátok.
         self.declare_parameter("wheelbase", 0.3)
         self.wheelbase = self.get_parameter("wheelbase").value 
         self.declare_parameter("lookahead_distance", 0.3)
@@ -25,20 +37,28 @@ class PURE_PURSUIT_CONTROL(Node):
         self.declare_parameter('max_steering_speed', 0.6)
         self.max_steering_speed = self.get_parameter('max_steering_speed').value
 
+        # Path és aktuális pozíció tárolása.
         self.path = Path()
         self.pose_actual = Pose()
 
+        # TF Buffer és Listener: robot pozíció lekérdezéséhez.
         self.tfBuffer = tf2_ros.Buffer()
         self.tfListener = tf2_ros.TransformListener(self.tfBuffer, self)
 
+        # Mintavételi idő.
         self.dt = 0.1
 
+        # Publisher: sebesség parancsok.
         self.pub_cmd = self.create_publisher(Twist, "/cmd_vel", 1)
+        
+        # Publisher: vizualizációs markerek (legközelebbi és lookahead pont).
         self.pub_viz = self.create_publisher(MarkerArray, "/viz_closest", 1)
 
+        # Subscriber: path fogadása.
         self.sub_path = self.create_subscription(Path, "/path", self.callback_path, 1)
         # self.sub_odom = self.create_subscription(Odometry, "/odom", self.callback_odom, 1)
 
+        # Timer: 10 Hz szabályozási ciklus.
         self.timer = self.create_timer(self.dt, self.timer_callback)
 
     def callback_path(self, msg: PoseStamped):
@@ -48,22 +68,24 @@ class PURE_PURSUIT_CONTROL(Node):
         self.pose_actual = msg.pose.pose
 
     def timer_callback(self):
+        # Ellenőrzés: van-e path és legalább 2 póz.
         # if not self.path or not self.odom or len(self.path.poses) < 2:
         if not self.path  or len(self.path.poses) < 2:
             return
         
-        # Get actual pose
+        # Aktuális pozíció lekérdezése TF-ből (map → base_link).
         if self.tfBuffer.can_transform("map", "base_link", rclpy.time.Time(), rclpy.duration.Duration(seconds=0.1)):
             trans_base2map = self.tfBuffer.lookup_transform("map", "base_link", rclpy.time.Time())
             base = PoseStamped()
-            base.pose.orientation.w = 1.0
+            base.pose.orientation.w = 1.0  # Origóban (0,0,0).
 
+            # Transzformáció alkalmazása (base_link → map frame).
             self.pose_actual = do_transform_pose_stamped(base, trans_base2map)
 
         else:
             return
 
-        # Closest point
+        # Legközelebbi pont keresése a path-on.
         index_closest_point = 0
         closest_distance = 9999.0
         for index in range(len(self.path.poses)):
@@ -76,11 +98,12 @@ class PURE_PURSUIT_CONTROL(Node):
                 closest_distance = distance_cal
         
         closest_point = self.path.poses[index_closest_point]
+        # Vizualizáció: legközelebbi pont (piros marker).
         self.send_point(closest_point, "closest_point")
 
 
 
-        # Lookahead point
+        # Lookahead pont keresése: első pont, amely távolabb van, mint lookahead_distance.
         lookahead_index = index_closest_point + 1
         while lookahead_index < len(self.path.poses):
             lookahead_point = self.path.poses[lookahead_index]
@@ -92,12 +115,12 @@ class PURE_PURSUIT_CONTROL(Node):
             lookahead_index +=1
 
         lookahead_point = self.path.poses[lookahead_index]
+        # Vizualizáció: lookahead pont (piros marker).
         self.send_point(lookahead_point, "lookahead_point")
 
 
-        # Pure pursuit 
-
-                # Pure pursuit control
+        # Pure Pursuit szabályozó számítása.
+        # Távolság és irányszög a lookahead ponthoz.
         dx = lookahead_point.pose.position.x - self.pose_actual.pose.position.x
         dy = lookahead_point.pose.position.y - self.pose_actual.pose.position.y
         linear_error = math.sqrt(dx**2 + dy**2)
@@ -108,25 +131,28 @@ class PURE_PURSUIT_CONTROL(Node):
              self.pose_actual.pose.orientation.z,
              self.pose_actual.pose.orientation.w]
         current_yaw = euler_from_quaternion(q)[2]
-        # Calculate angular error 
+        
+        # Szöghiba kiszámítása.
         angular_error = target_yaw - current_yaw
 
-        ## Longitudinal control
+        # Longitu dinális szabályozó (sebesség).
         linear_output = 0.0
         if linear_error > self.max_speed:
             linear_output = self.max_speed
         elif linear_error > 0.1:
             linear_output = linear_error
 
-        ## Lateral control
+        # Laterális szabályozó (kormányzás).
+        # Szöghiba normalizálása [-π, π] tartományra.
         corrected_angle = math.atan2(math.sin(angular_error), math.cos(angular_error))
 
+        # Pure Pursuit kormányszög: steering_angle = atan(2 * L * sin(α) / d).
         steering_angle = math.atan(2 * self.wheelbase * math.sin(corrected_angle)/ linear_error)
 
-        # Limit angular output
+        # Kormányszög korlátozása.
         steering_angle = max(min(steering_angle, self.max_steering_speed), -self.max_steering_speed)
 
-        # Publish control commands
+        # Sebesség parancsok publikálása.
         cmd = Twist()
         cmd.linear.x = linear_output
         cmd.angular.z = steering_angle
@@ -136,12 +162,12 @@ class PURE_PURSUIT_CONTROL(Node):
 
 
     def send_point(self, closest_point:PoseStamped, ns:str):
-        # Create visualization markers
+        # Vizualizációs marker létrehozása (SPHERE: gömb).
         marker_array = MarkerArray()
         marker = Marker()
         marker.header.frame_id = "map"
         marker.header.stamp = self.get_clock().now().to_msg()
-        marker.ns = ns
+        marker.ns = ns  # Namespace: megkülönböztetés (closest_point / lookahead_point).
         marker.id = 0
         marker.type = Marker.SPHERE
         marker.action = Marker.ADD
@@ -150,18 +176,26 @@ class PURE_PURSUIT_CONTROL(Node):
         marker.scale.y = 0.1
         marker.scale.z = 0.1
         marker.color.a = 1.0
-        marker.color.r = 1.0
+        marker.color.r = 1.0  # Piros szín.
         marker.color.g = 0.0
         marker.color.b = 0.0
         marker.lifetime = rclpy.duration.Duration(seconds=0.1).to_msg()
         marker_array.markers.append(marker)
 
+        # Marker publikálása.
         self.pub_viz.publish(marker_array)
 
 def main(args=None):
+    # ROS inicializálás.
     rclpy.init(args=args)
+    
+    # Node létrehozása.
     pid_control_ = PURE_PURSUIT_CONTROL()
+    
+    # Eseményciklus indítása.
     rclpy.spin(pid_control_)
+    
+    # Erőforrások felszabadítása.
     pid_control_.destroy_node()
     rclpy.shutdown()
 

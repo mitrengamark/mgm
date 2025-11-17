@@ -1,0 +1,22 @@
+# 1) ROS környezet
+source /opt/ros/humble/setup.bash
+
+# 2) Lépj a workspace gyökerébe (állítsd be a saját elérési utat)
+cd /Users/newuser/Documents/Mark/Egyetem/mgm/workspace/mgm_gyak
+
+# 3) ZH mappa
+mkdir -p ZH
+cd ZH
+
+# 4) Csomag létrehozása (Python alapú)
+# Megjegyzés: a --dependencies listába betehetjük a gyakori üzenetcsomagokat is,
+# ez később jól jöhet, de most elég az rclpy is.
+ros2 pkg create zh --build-type ament_python --dependencies rclpy std_msgs geometry_msgs nav_msgs visualization_msgs tf2_ros
+
+# 5) (Opció) Építés csak erre a csomagra
+cd ..
+colcon build --packages-select zh --symlink-install
+source install/setup.bash
+
+# Ellenőrzés (a listában szerepel-e a csomag)
+ros2 pkg list | grep '^zh$' || echo "Nincs a listában (ellenőrizd az útvonalat és a buildet)."
