@@ -1,0 +1,51 @@
+# Package gyak12
+Készítsen egy 'gyak12' package-t. (1 pont)
+
+## Node1
+Készítsen egy node-t, mely feliratkozik egy '/odom' topicra, mely 
+tartalmazza a jármű aktuális állapotát. Számolja ki a jármű 
+elmozdulását két üzenet között.
+(3 pont)
+
+-        Összegezze az elmozdulást, melyet egy '/elmozdulas' nevű,
+ 'std_msgs/Float64' típusú topicra folyamatosan kiküldenek.
+(1 pont)
+
+-        Egész méterenként küldjék ki az aktuális pozíciót '/poz' 
+nevű, 'nav_msgs/Odometry' típusú topic-ra.
+(2 pont)
+
+Készítsen launch file-t, mely tartalmazza az új node-t és 
+elindítja automatikusan az rviz-t is.
+(2 pont)
+
+ 
+## Node2
+Készítsen egy node-t, mely feliratkozik a ‘/scan’ topic-ra 
+és a topic-on jövő üzeneteket átkonvertálja a derékszögű 
+koordináta rendszerben értelmezett pont felhővé, úgy, hogy a 
+‘z’ koordináta helyére nem 0, hanem a ponthoz tartozó távolság 
+érték kerüljön kitöltésre. Ezt pontfelhőt küldje ki a ‘/cloud’ 
+nevű, ‘sensor_msgs/PointCloud2’ típusú topicra.
+(3 pont)
+
+-        A létrejövő pontfelhőnek számoljunk súlypontot
+(pontok átlaga x, y és z koordináta mentén) és azt egy 
+‘visualization_msgs/Marker’ típusú üzenetben kommunikálja 
+ki, mint 10 centiméteres gömb.
+(3 pont)
+
+-        A súly pontot transzformálja el a ‘map’ frame-re és
+ kommunikálja ki, mint ‘geometry_msgs/PoseStamped’ típusú üzenet.(3 pont)
+
+Készítsen launch file-t, mely tartalmazza az új node-t 
+és elindítja automatikusan az rviz-t is.
+(2 pont)
+
+ 
+
+Tesztelésre használhatja a gyak3-ben található rosbag-et. 
+A beadás során a kész package-t becsomagolva töltse fel.
+
+
+

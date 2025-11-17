@@ -1,0 +1,30 @@
+<launch>
+    <!-- Start rosbag play -->
+    <executable
+        cmd="ros2 bag play --clock 1000 $(find-pkg-share gyak3)/bag"
+        output="screen"
+        name="rosbag_play"
+        shell="true"
+    />
+
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="map_to_robot2_odom" output="screen"
+        args="0.0 0.0 0.0 0.0 0.0 0.0 map odom"/>
+
+
+    <!-- Path save -->
+    <!-- <node pkg="gyak11" exec="save_path" name="save_path" output="screen" >
+        <param name="distance"   value="0.1"/>
+        <param name="topic_name"   value="/odom"/>
+        <param name="text_file_name"   value="/workspace/src/ros2_mgm/mgm_gyak/gyak11/param/positions.txt"/>
+    </node> -->
+
+    <!-- Path publish -->
+    <node pkg="gyak11" exec="pub_path" name="pub_path" output="screen" >
+        <param name="publish_rate"   value="1.0"/>
+        <param name="text_file_name"   value="/workspace/src/ros2_mgm/mgm_gyak/gyak11/param/positions.txt"/>
+    </node>
+
+    <!-- RVIZ -->
+    <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share gyak11)/rviz/gyak11.rviz"/>
+
+</launch>

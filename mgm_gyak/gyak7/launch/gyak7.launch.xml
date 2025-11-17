@@ -1,0 +1,18 @@
+<launch>
+
+    <!-- Diff robot model -->
+    <node pkg="gyak7" exec="diff_robot" name="diff_robot" output="screen"/>
+
+    <!-- Control -->
+    <node pkg="gyak7" exec="control" name="control" output="screen">
+        <param name="Kp" value="10.0"/>
+        <param name="Ki" value="0.0"/>
+        <param name="Kd" value="0.0"/>
+        <param name="max_speed" value="0.2"/>
+        <param name="max_angular_speed" value="0.5"/>
+    </node>
+
+    <!-- RVIZ -->
+    <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share gyak7)/rviz/gyak7.rviz"/>
+
+</launch>

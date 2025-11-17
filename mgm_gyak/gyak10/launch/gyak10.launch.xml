@@ -1,0 +1,36 @@
+<launch>
+    <!-- Map 2 odom -->
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="map_to_robot2_odom" output="screen"
+        args="-2.0 -0.5 0.0 0.0 0.0 0.0 map odom"/>
+
+    <!-- Path publish -->
+    <node pkg="gyak11" exec="pub_path" name="pub_path" output="screen" >
+        <param name="publish_rate"   value="1.0"/>
+        <param name="text_file_name"   value="/workspace/src/mgm_gyak/gyak11/param/positions.txt"/>
+    </node>
+
+    <!-- Robot -->
+    <node pkg="gyak10" exec="ack_robot" name="ack_robot" output="screen">
+        <param name="wheel_base"     value ="0.3"/>
+    </node>
+
+    <!-- Pure Pursuit -->
+    <node pkg="gyak10" exec="pure_pursuit" name="pure_pursuit" output="screen">
+        <param name="wheel_base"     value ="0.3"/>
+        <param name="lookahead_distance"   value="0.5"/>
+        <param name="max_speed"             value="0.1"/>
+        <param name="max_steering_speed"    value="0.6"/>
+    </node>
+
+
+    <node pkg="gyak3" exec="path.py" name="path_node" output="screen">
+        <param name="use_sim_time" value="true"/>
+        <param name="path_topic_name" value="/path_odom"/>
+        <param name="odom_topic_name" value="/odom"/>
+        <param name="max_size" value="500"/>
+    </node>
+
+    <!-- RVIZ -->
+    <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share gyak10)/rviz/gyak10.rviz"/>
+
+</launch>

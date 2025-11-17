@@ -1,0 +1,48 @@
+<launch>
+    <!-- Start rosbag play -->
+    <executable
+        cmd="ros2 bag play --clock 1000 $(find-pkg-share gyak3)/bag"
+        output="screen"
+        name="rosbag_play"
+        shell="true"
+    />
+
+    <!-- Node -->
+    <node pkg="gyak8" exec="test_tf" name="test_tf" output="screen">
+        <param name="use_sim_time" value="true"/>
+        <param name="target_frame" value="odom"/>
+    </node>
+
+    <!-- Paths -->
+    <node pkg="gyak3" exec="path.py" name="path_left_node" output="screen">
+        <param name="use_sim_time" value="true"/>
+        <param name="path_topic_name" value="/path_mid"/>
+        <param name="odom_topic_name" value="/odom"/>
+        <param name="max_size" value="1500"/>
+    </node>
+
+    <node pkg="gyak3" exec="path.py" name="path_left_node" output="screen">
+        <param name="use_sim_time" value="true"/>
+        <param name="path_topic_name" value="/path_left"/>
+        <param name="odom_topic_name" value="/odom_left"/>
+        <param name="max_size" value="1500"/>
+    </node>
+
+    <node pkg="gyak3" exec="path.py" name="path_right_node" output="screen">
+        <param name="use_sim_time" value="true"/>
+        <param name="path_topic_name" value="/path_right"/>
+        <param name="odom_topic_name" value="/odom_right"/>
+        <param name="max_size" value="1500"/>
+    </node>
+
+    <node pkg="gyak3" exec="path.py" name="path_safety_left_node" output="screen">
+        <param name="use_sim_time" value="true"/>
+        <param name="path_topic_name" value="/path_safety_left"/>
+        <param name="odom_topic_name" value="/odom_safety_left"/>
+        <param name="max_size" value="1500"/>
+    </node>
+
+    <!-- RVIZ -->
+    <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share gyak8)/rviz/gyak8.rviz"/>
+
+</launch>

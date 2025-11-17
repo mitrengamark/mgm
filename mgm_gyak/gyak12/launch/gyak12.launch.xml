@@ -1,0 +1,21 @@
+<launch>
+    <!-- Start rosbag play -->
+    <executable
+        cmd="ros2 bag play --clock 1000 $(find-pkg-share gyak3)/bag"
+        output="screen"
+        name="rosbag_play"
+        shell="true"
+    />
+
+    <!-- Node1 -->
+    <node pkg="gyak12" exec="node1" name="node1" output="screen" >
+    </node>
+
+    <!-- Node2 -->
+    <node pkg="gyak12" exec="node2" name="node2" output="screen" >
+    </node>
+
+    <!-- RVIZ -->
+    <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share gyak12)/rviz/gyak12.rviz"/>
+
+</launch>
