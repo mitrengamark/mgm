@@ -1,0 +1,5 @@
+Készítsen egy „proba3” nevű ROS package-t.
+Készítsen egy node-t, mely feliratkozik egy „/agent1/scan” nevű „sensor_msgs/LaserScan” típusú topicra, melyből vizsgálja meg a +/-5°-os tartományban van-e objektum a szenzor érzékelési távolság tartománya szerint. Ha van, akkor a legközelebbi objektumtól való távolságot küldje ki egy „std_msgs/Float64” típusú üzenetben.
+A vizsgált érzékelési tartományban lévő pontokat számolja át derékszögi koordináta rendszerben értelmezett koordinátákra és kommunikálja ki azokat „geometry_msgs/PoseArray” típusú üzenetként.
+Készítsen launch file-t a node indítására és a PoseArray rviz-ben történő megjelenítésére.
+Tesztelésre a mellékelt bag file-t lehet használni.
