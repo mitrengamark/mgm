@@ -1,6 +1,0 @@
-Készítsen egy „proba1” nevű ROS package-t.
-Készítsen egy node-t, mely feliratkozik egy „/agent1/odom/ground_truth” nevű „nav_msgs/Odometry” típusú topicra, melyből az orientáció alapján számolja ki a ‚yaw’ szöget.
-Iratkozzon fel a „/path” nevű „nav_msgs/Path” típusú topicra. Az útvonal és a korábban megkapott pozíció alapján keresse meg a legközelebbi pontot az útvonalról, melyet egy „/closest_point” nevű „geometry_msgs/PoseStamped” típúsú topicra kiküld.
-Számolja ki a legközelebbi pont és a saját pozíció által alkotott egyenes és a „map” frame x tengelye által bezárt szöget, ebből vonja ki a korábban kiszámolt „yaw” szöget és küldje ki „std_msgs/Float64” típusú üzenetként.
-Készítsen egy launch file-t, mely elindítja a node-t és egy rviz-t, melyben meg lehet jeleníteni a LIDAR képet és a legközelebbi pont pozícióját.
-Tesztelésre a mellékelt bag file-t lehet használni.
