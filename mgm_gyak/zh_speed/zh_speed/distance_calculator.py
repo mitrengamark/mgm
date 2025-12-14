@@ -24,7 +24,7 @@ class DistanceCalculator(Node):
         self.distance_publisher = self.create_publisher(Float64, '/tavolsag', 1)
         self.yaw_publisher = self.create_publisher(Float64MultiArray, '/yaw', 1)
 
-        self.pos1 = None 
+        self.pos1 = None
         self.pos2 = None
         self.dist_msg = Float64()
 
@@ -36,13 +36,13 @@ class DistanceCalculator(Node):
 
     def agent1_callback(self, msg: Odometry):
         """Fogadja és eltárolja az 1. robot pozícióját és orientációját."""
-        self.pose1 = (msg.pose.pose.position.x, msg.pose.pose.position.y)
+        self.pos1 = (msg.pose.pose.position.x, msg.pose.pose.position.y)
         # Kvaternió eltárolása
         self.quat1 = msg.pose.pose.orientation
 
     def agent2_callback(self, msg: Odometry):
         """Fogadja és eltárolja a 2. robot pozícióját és orientációját."""
-        self.pose2 = (msg.pose.pose.position.x, msg.pose.pose.position.y)
+        self.pos2 = (msg.pose.pose.position.x, msg.pose.pose.position.y)
         # Kvaternió eltárolása
         self.quat2 = msg.pose.pose.orientation
 

@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'zh_speed'
+package_name = 'zh'
 
 setup(
     name=package_name,
@@ -10,8 +10,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/zh_speed.launch.xml']),
-        ('share/' + package_name + '/rviz', ['rviz/zh_speed.rviz']),
+        ('share/' + package_name + '/launch', ['launch/zh.launch.xml']),
+        ('share/' + package_name + '/rviz', ['rviz/zh.rviz']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -26,7 +26,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'distance_calculator=zh_speed.distance_calculator:main',
+            'node1=zh.node1:main',
+            'node2=zh.node2:main',
         ],
     },
 )

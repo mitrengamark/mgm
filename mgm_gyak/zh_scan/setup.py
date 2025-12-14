@@ -10,6 +10,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/launch', ['launch/zh_scan.launch.xml']),
+        ('share/' + package_name + '/rviz', ['rviz/zh_scan.rviz']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -24,6 +26,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'scan=zh_scan.scan:main',
         ],
     },
 )

@@ -3,7 +3,7 @@
 <package format="3">
   <name>zh_scan</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>ZH feladat: LaserScan alapú akadálydetektálás és vizualizáció.</description>
   <maintainer email="mitrengamark@edu.bme.hu">mark</maintainer>
   <license>TODO: License declaration</license>
 

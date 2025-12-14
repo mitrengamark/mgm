@@ -28,13 +28,10 @@ class ScanNode(Node):
 
         self.max_distance = 5.0  # Maximális távolság a visszaverődésekhez (méter)
         self.max_lateral_deviation = 0.1  # Maximális oldalsó eltérés a jármű hossztengelyétől (méter)
+        self.critical_angle_rad = math.asin(self.max_lateral_deviation / self.max_distance)
 
         # Új Publisher: MarkerArray a LaserScan pontokhoz
         self.marker_pub = self.create_publisher(MarkerArray, '/scan_viz', 10)
-
-        self.point = Point()
-        self.marker_array = MarkerArray()
-        self.marker = Marker()
 
     def scan_callback(self, msg: LaserScan):
         # A detektálás eredménye: True, ha találtunk akadályt az adott sávban
@@ -61,11 +58,11 @@ class ScanNode(Node):
                 # Ellenőrizzük, hogy az abszolút szög a kritikus ablakon belül van-e
                 if abs(angle) <= self.critical_angle_rad:
                     obstacle_found = True
-                    break # Megtaláltuk az első akadályt, nincs szükség további ellenőrzésre
-        
-            # Szög frissítése a következő méréshez
-            angle += msg.angle_increment
+                    # Nincs break, mert a vizualizációhoz az összes pontot továbbra is gyűjtjük
 
+            # Szög frissítése a következő méréshez
+            # Fontos: a vizualizációhoz ugyanazt az angle-t használjuk, mint a detektáláshoz
+            # ezért a frissítés a konverzió után történik.
             # 1. Érvényességi ellenőrzés
             if r > msg.range_min and r < msg.range_max:
                 
@@ -75,44 +72,50 @@ class ScanNode(Node):
                 z = 0.0 # Síkbeli LiDAR feltételezése
                 
                 # A pont hozzáadása a vizualizációs listához
-                self.point.x = x
-                self.point.y = y
-                self.point.z = z
-                points_for_viz.append(self.point)
+                pt = Point()
+                pt.x = x
+                pt.y = y
+                pt.z = z
+                points_for_viz.append(pt)
+
+            angle += msg.angle_increment
 
         # 4. Bináris eredmény publikálása
         self.bool_msg.data = obstacle_found
         self.pub_bin.publish(self.bool_msg)
 
+        marker_array = MarkerArray()
+
         if points_for_viz:
             
             # Fejléc és Frame ID átvétele az eredeti LaserScan üzenetből
-            self.marker.header = msg.header 
-            self.marker.ns = "scan_points_zh"
-            self.marker.id = 0
+            marker = Marker()
+            marker.header = msg.header 
+            marker.ns = "scan_points_zh"
+            marker.id = 0
             
             # Marker típusa: SPHERE_LIST (hatékony megjelenítés sok pontnál)
-            self.marker.type = self.marker.SPHERE
-            self.marker.action = self.marker.ADD
+            marker.type = marker.SPHERE_LIST
+            marker.action = marker.ADD
             
             # Méret beállítása: 10 cm-es gömb (0.1 m)
-            self.marker.scale.x = 0.1 
-            self.marker.scale.y = 0.1
-            self.marker.scale.z = 0.1
+            marker.scale.x = 0.1 
+            marker.scale.y = 0.1
+            marker.scale.z = 0.1
             
             # Szín beállítása (pl. Zöld/Fehér)
-            self.marker.color.a = 1.0 
-            self.marker.color.r = 0.0
-            self.marker.color.g = 1.0
-            self.marker.color.b = 0.0
+            marker.color.a = 1.0 
+            marker.color.r = 0.0
+            marker.color.g = 1.0
+            marker.color.b = 0.0
             
             # Pontok hozzáadása a markerhez
-            self.marker.points = points_for_viz 
+            marker.points = points_for_viz 
             
-            self.marker_array.markers.append(self.marker)
+            marker_array.markers.append(marker)
 
-        # Publikálás a /scan_viz topicra
-        self.marker_pub.publish(self.marker_array)
+        # Publikálás a /scan_viz topicra (üres lista is frissít, hogy ne maradjon régi marker)
+        self.marker_pub.publish(marker_array)
             
             
 
