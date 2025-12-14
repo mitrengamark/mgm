@@ -1,0 +1,12 @@
+<!-- Launch file: proba2 node és RViz indítása
+     Forrás: gyak12/launch/gyak12.launch.xml alapján
+-->
+<launch>
+    <!-- Node1 indítása (gyak12/launch/gyak12.launch.xml: 11-12. sorok alapján) -->
+    <node pkg="proba2" exec="node1" name="proba2_node" output="screen">
+    </node>
+
+    <!-- RVIZ indítása (gyak12/launch/gyak12.launch.xml: 18. sor alapján) -->
+    <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share proba2)/rviz/proba2.rviz"/>
+
+</launch>

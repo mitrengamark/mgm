@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+import os
+from glob import glob
 
 package_name = 'proba2'
 
@@ -10,6 +12,10 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        # Launch fájlok (gyak10/setup.py mintájára)
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.xml')),
+        # RViz config (gyak12/setup.py mintájára)
+        (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -24,6 +30,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+                    'node1 = proba2.node1:main',
         ],
     },
 )
